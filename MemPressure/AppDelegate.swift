@@ -31,7 +31,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Create a button and set its appearance and action
         if let button = statusItem.button {
-            updateButtonTitle()
             button.target = self
             button.action = #selector(statusBarButtonClicked(_:))
         }
@@ -79,6 +78,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Set the menu for the status bar item
         statusItem.menu = menu
+        
+        // Update button title after all menu items are initialized
+        updateButtonTitle()
         
         // timer for update interval
         updateTimer = Timer.scheduledTimer(timeInterval: 3.0, target: self, selector: #selector(updateButtonTitle), userInfo: nil, repeats: true)
@@ -164,18 +166,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         if let button = statusItem.button {
             button.title = title
-            let numericTitle = title.dropFirst().dropLast()
+            // Extract only the numeric part of the title (remove the % symbol)
+            let numericTitle = title.dropLast()
             if let pressure = Int(numericTitle) {
-                if pressure < 65 {
-                    button.attributedTitle = NSAttributedString(string: title, attributes: [.font: menuFont])
-                } else if pressure >= 65 && pressure <= 90 {
-                    button.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.orange, .font: menuFont])
+                // Only apply colors if colorizedItem is selected
+                if colorizedItem.state == .on {
+                    if pressure < 65 {
+                        button.attributedTitle = NSAttributedString(string: title, attributes: [.font: menuFont])
+                    } else if pressure >= 65 && pressure <= 90 {
+                        button.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.orange, .font: menuFont])
+                    } else {
+                        button.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.red, .font: menuFont])
+                    }
                 } else {
-                    button.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.red, .font: menuFont])
+                    // Plain style
+                    button.attributedTitle = NSAttributedString(string: title, attributes: [.font: menuFont])
                 }
             } else {
                 // Handle the case when the title does not contain a valid numeric value
-                button.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.black, .font: menuFont])
+                button.attributedTitle = NSAttributedString(string: title, attributes: [.font: menuFont])
             }
         }
     }
