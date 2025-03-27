@@ -158,22 +158,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func updateButtonTitle() {
         let title = getUpdatedTitle()
         
-        let fontSize: CGFloat = 12.0  // Adjust the font size as desired
+        // Use system menu bar font instead of hardcoded size
+        let menuBarFont = NSFont.menuBarFont(ofSize: 0)
+        let menuFont = NSFont.monospacedSystemFont(ofSize: menuBarFont.pointSize, weight: .regular)
         
         if let button = statusItem.button {
             button.title = title
             let numericTitle = title.dropFirst().dropLast()
             if let pressure = Int(numericTitle) {
                 if pressure < 65 {
-                    button.attributedTitle = NSAttributedString(string: title, attributes: [.font: NSFont.boldSystemFont(ofSize: fontSize)])
+                    button.attributedTitle = NSAttributedString(string: title, attributes: [.font: menuFont])
                 } else if pressure >= 65 && pressure <= 90 {
-                    button.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.orange, .font: NSFont.boldSystemFont(ofSize: fontSize)])
+                    button.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.orange, .font: menuFont])
                 } else {
-                    button.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.red, .font: NSFont.boldSystemFont(ofSize: fontSize)])
+                    button.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.red, .font: menuFont])
                 }
             } else {
                 // Handle the case when the title does not contain a valid numeric value
-                button.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.black, .font: NSFont.boldSystemFont(ofSize: fontSize)])
+                button.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.black, .font: menuFont])
             }
         }
     }
@@ -197,7 +199,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             if let pressure = Int(numericValue) {
                 let result = fixedValue - pressure
-                return "M\(result)%"
+                return "\(result)%"
             } else {
                 return ""
             }
